@@ -70,7 +70,7 @@ class Scheduler:
                 alpha_h = 10
                 beta_h = 1.0
                 system_pressure = job.d + job.p
-                job_risk = job.w * (max(0, job.p + max(now, job.r) - job.d))
+                job_risk = job.w * (max(0, job.p + max(now, preds_completed_at[jid]) - job.d))                
                 core_score = alpha_h * system_pressure - beta_h * job_risk
                 return (core_score, job.d, job.p, -job.w, jid)
                 
@@ -94,21 +94,23 @@ class Scheduler:
 
         current_time = 0.0 # Sử dụng float cho thời gian
 
-        # helper: chuyển tất cả job có r <= now từ release_heap -> ready_heap (batch)
+       # helper: chuyển tất cả job có r <= now từ release_heap -> ready_heap (batch)
         def pop_releases_up_to(now):
-            repush_list = []
-            while release_heap and release_heap[0][0] <= now + 1e-6: # Thêm epsilon cho float
-                r, jid = heapq.heappop(release_heap)
-                if jid in remaining and jid not in in_ready:
-                    # Cập nhật key khi đẩy vào ready_heap
-                    heapq.heappush(ready_heap, (ready_key(jid, now), jid))
-                    in_ready.add(jid)
-                elif jid in remaining and jid in in_ready:
-                    repush_list.append((r, jid))
-                elif jid not in remaining:
-                    pass
-            for r, jid in repush_list:
-                 heapq.heappush(release_heap, (r, jid))
+            # Sử dụng nonlocal để tác động lên biến ở scope cha
+            nonlocal ready_heap
+            
+            # 1. Chuyển job từ release_heap sang in_ready
+            while release_heap and release_heap[0][0] <= now:
+                _, jid = heapq.heappop(release_heap)
+                in_ready.add(jid)
+            
+            # Cập nhật lại toàn bộ ready_heap bằng cách gọi ready_key
+            new_heap = []
+            for jid in list(in_ready):
+                if jid in remaining:
+                    score = ready_key(jid, now)  # <--- Dùng hàm ở đây cho gọn
+                    heapq.heappush(new_heap, (score, jid))
+            ready_heap = new_heap
 
         # ban đầu add tất cả job r <= 0
         pop_releases_up_to(0)
