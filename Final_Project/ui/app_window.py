@@ -428,11 +428,11 @@ class MainWindow(QMainWindow):
         schedule_layout = QVBoxLayout(schedule_widget)
         schedule_layout.setContentsMargins(5, 5, 5, 5)
 
-        schedule_layout.addWidget(QLabel("Lịch trình dạng Biểu đồ Gantt (Thời gian là Vàng): "))
+        schedule_layout.addWidget(QLabel("Lịch trình dạng Biểu đồ Gantt: "))
         self.gantt_chart = GanttChartWidget()
         schedule_layout.addWidget(self.gantt_chart)
         
-        schedule_layout.addWidget(QLabel("Lịch trình Chi tiết (Bảng Lưới Lấp Lánh):"))
+        schedule_layout.addWidget(QLabel("Lịch trình Chi tiết:"))
         self.schedule_grid = ScheduleGridDisplay() 
         schedule_layout.addWidget(self.schedule_grid)
         

@@ -2,11 +2,9 @@ import sys
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
 
-# Import class MainWindow từ package ui
 from ui.app_window import MainWindow
 
 if __name__ == '__main__':
-    # Patch để hỗ trợ enum cũ nếu cần
     if not hasattr(Qt.AlignmentFlag, 'AlignCenter') and hasattr(Qt, 'AlignCenter'):
         Qt.AlignmentFlag.AlignCenter = Qt.AlignCenter
         
